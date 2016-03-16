@@ -32,12 +32,12 @@ public class Chunk {
 	public Chunk(int x, int y, int z) {
 		this.blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
-		final int BLOCK_ID = y < GENERATION_LIMIT ? 1 : 0;//RANDOM.nextInt(10) == 0 ? 0 : 1
+		final int BLOCK_ID = y < GENERATION_LIMIT ? 1 : 0;// RANDOM.nextInt(64) == 0 ? 0 : 1
 
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int j = 0; j < CHUNK_SIZE; j++) {
 				for (int k = 0; k < CHUNK_SIZE; k++) {
-					blocks[i][j][k] = new Block(RANDOM.nextInt(64) == 0 ? 0 : BLOCK_ID);
+					blocks[i][j][k] = new Block(BLOCK_ID);
 				}
 			}
 		}
@@ -77,12 +77,19 @@ public class Chunk {
 		this.bufferSizes = new int[Block.CUBE_FACE_COUNT];
 	}
 
-	public void update() {
+	public void update(World world) {
 		if (this.isDirty() && !this.isProcessing()) {
 			dirty = false;
 			processing = true;
 
 			ChunkUpdateQueue.enqueueChunkUpdate(this);
+			for (int i = 0; i < Block.CUBE_FACE_COUNT; i++) {
+				Chunk chunk = world.getChunk(x + Block.CUBE_FACE_NORMALS[i * 3 + 0], y + Block.CUBE_FACE_NORMALS[i * 3 + 1], z + Block.CUBE_FACE_NORMALS[i * 3 + 2]);
+				if (chunk != null) {
+					chunk.processing = true;
+					ChunkUpdateQueue.enqueueChunkUpdate(chunk);
+				}
+			}
 		} else if (this.isProcessing() && this.isFinished()) {
 			initialized = true;
 			processing = false;
@@ -114,7 +121,8 @@ public class Chunk {
 			GL20.glEnableVertexAttribArray(1);
 			GL20.glEnableVertexAttribArray(2);
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-			GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, Block.CUBE_FLOATS_PER_VERTEX * Float.BYTES, 0 * Float.BYTES); // Vertex Position : Vector3f[x, y, z];
+			GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, Block.CUBE_FLOATS_PER_VERTEX * Float.BYTES, 0 * Float.BYTES); // Vertex Position :
+																																	// Vector3f[x, y, z];
 			GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, Block.CUBE_FLOATS_PER_VERTEX * Float.BYTES, 3 * Float.BYTES);
 			GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, Block.CUBE_FLOATS_PER_VERTEX * Float.BYTES, 5 * Float.BYTES);
 

@@ -33,14 +33,18 @@ public class ChunkUpdateQueue {
 	}
 
 	public static void update(World world) {
-		while (updateQueue.size() > 0 && openUpdateThreads.size() > 0) {
-			Integer updateThreadID = openUpdateThreads.remove(0);
-			Chunk currentChunk = updateQueue.remove(0);
+		if (updateQueue.size() > 0 && openUpdateThreads.size() > 0) {
+			List<Chunk> sortedList = new ArrayList<Chunk>();
 
-			processingList.put(currentChunk, updateThreadID);
+			while (updateQueue.size() > 0 && openUpdateThreads.size() > 0) {
+				Integer updateThreadID = openUpdateThreads.remove(0);
+				Chunk currentChunk = updateQueue.remove(0);
 
-			updateThreads[updateThreadID] = new ChunkUpdateThread(world, currentChunk);
-			updateThreads[updateThreadID].start();
+				processingList.put(currentChunk, updateThreadID);
+
+				updateThreads[updateThreadID] = new ChunkUpdateThread(world, currentChunk);
+				updateThreads[updateThreadID].start();
+			}
 		}
 	}
 

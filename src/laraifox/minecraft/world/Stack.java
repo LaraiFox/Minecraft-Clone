@@ -13,16 +13,16 @@ public class Stack {
 			chunks[i] = new Chunk(x, i, z);
 		}
 	}
-	
+
 	public void invalidate() {
 		for (Chunk chunk : chunks) {
 			chunk.invalidate();
 		}
 	}
 
-	public void update() {
+	public void update(World world) {
 		for (Chunk chunk : chunks) {
-			chunk.update();
+			chunk.update(world);
 		}
 	}
 
@@ -40,5 +40,9 @@ public class Stack {
 
 	public void setBlock(int id, int x, int y, int z) {
 		chunks[y / Chunk.CHUNK_SIZE].setBlock(id, x, (int) (y % Chunk.CHUNK_SIZE), z);
+	}
+
+	public Chunk getChunk(int y) {
+		return chunks[y];
 	}
 }

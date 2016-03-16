@@ -26,7 +26,7 @@ public class World {
 		}
 
 		for (Stack stack : stacks) {
-			stack.update();
+			stack.update(this);
 		}
 	}
 
@@ -44,6 +44,14 @@ public class World {
 		return worldSize.getSize();
 	}
 
+	public Chunk getChunk(int x, int y, int z) {
+		if (x < 0 || x >= worldSize.getSize() || y < 0 || y >= Stack.STACK_SIZE || z < 0 || z >= worldSize.getSize()) {
+			return null;
+		}
+
+		return stacks[x + z * worldSize.getSize()].getChunk(y);
+	}
+
 	public Block getBlock(int x, int y, int z) {
 		if (x < 0 || x >= worldSize.getSize() * Chunk.CHUNK_SIZE || y < 0 || y >= Stack.STACK_SIZE * Chunk.CHUNK_SIZE || z < 0 || z >= worldSize.getSize() * Chunk.CHUNK_SIZE) {
 			return null;
@@ -53,6 +61,10 @@ public class World {
 	}
 
 	public void setBlock(int id, int x, int y, int z) {
+		if (x < 0 || x >= worldSize.getSize() * Chunk.CHUNK_SIZE || y < 0 || y >= Stack.STACK_SIZE * Chunk.CHUNK_SIZE || z < 0 || z >= worldSize.getSize() * Chunk.CHUNK_SIZE) {
+			return;
+		}
+		
 		stacks[(x / Chunk.CHUNK_SIZE) + (z / Chunk.CHUNK_SIZE) * worldSize.getSize()].setBlock(id, (int) (x % Chunk.CHUNK_SIZE), y, (int) (z % Chunk.CHUNK_SIZE));
 	}
 }

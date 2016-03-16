@@ -5,14 +5,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
 
 import laraifox.minecraft.enums.EWorldSize;
 import laraifox.minecraft.interfaces.IGameManager;
@@ -21,8 +17,16 @@ import laraifox.minecraft.math.Vector3f;
 import laraifox.minecraft.world.Block;
 import laraifox.minecraft.world.Chunk;
 import laraifox.minecraft.world.ChunkUpdateQueue;
+import laraifox.minecraft.world.Crawler;
 import laraifox.minecraft.world.Stack;
 import laraifox.minecraft.world.World;
+
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 
 public class GameManager implements IGameManager {
 	private static final Random RANDOM = new Random();
@@ -33,6 +37,8 @@ public class GameManager implements IGameManager {
 	private Camera camera;
 	private Shader shader;
 	private Texture2D texture;
+
+	private List<Crawler> crawlers;
 
 	private int vbo, ibo, ibo2;
 
@@ -47,7 +53,7 @@ public class GameManager implements IGameManager {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 
-		this.world = new World(EWorldSize.LARGE);
+		this.world = new World(EWorldSize.HUGE);
 		this.camera = new Camera(Matrix4f.Projection(70, display.getWidth(), display.getHeight(), 0.01f, 512.0f));
 		camera.translate(camera.getForward(), -5.0f);
 		try {
@@ -79,6 +85,8 @@ public class GameManager implements IGameManager {
 
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL15.GL_STATIC_DRAW);
+
+		this.crawlers = new ArrayList<Crawler>();
 	}
 
 	@Override
@@ -129,7 +137,7 @@ public class GameManager implements IGameManager {
 			camera.translate(camera.getForward().projectToPlane(Vector3f.Up()).normalize(), speed);
 		}
 
-		//		System.out.println(camera.getPosition().toString());
+		// System.out.println(camera.getPosition().toString());
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_Q)) {
 			int id = RANDOM.nextInt(2);
@@ -138,6 +146,19 @@ public class GameManager implements IGameManager {
 			int z = RANDOM.nextInt(world.getSize() * Chunk.CHUNK_SIZE);
 
 			world.setBlock(id, x, y, z);
+		} else if (Keyboard.isKeyDown(Keyboard.KEY_C)) {
+			crawlers.add(new Crawler(world, RANDOM));
+		}
+
+		Iterator<Crawler> iterator = crawlers.iterator();
+		while (iterator.hasNext()) {
+			Crawler crawler = iterator.next();
+
+			if (crawler.isAlive()) {
+				crawler.update(world, RANDOM);
+			} else {
+				iterator.remove();
+			}
 		}
 
 		ChunkUpdateQueue.update(world);
@@ -154,33 +175,35 @@ public class GameManager implements IGameManager {
 		shader.setUniform("projectionMatrix", camera.getProjectionMatrix());
 		shader.setUniform("color", new Vector3f(1.0f, 1.0f, 1.0f));
 
-		//		renderBlock();
+		// renderBlock();
+
+		// GL11.glEnable(GL11.GL_TEXTURE_2D);
 
 		texture.bind();
 		world.render(shader);
 
-		//		GL11.glLineWidth(2.0f);
+		// GL11.glLineWidth(2.0f);
 		//
-		//		shader.setUniform("viewMatrix", Quaternion.conjugate(camera.getRotation()).toRotationMatrix());
-		//		Vector3f origin = camera.getRotation().getForward();
+		// shader.setUniform("viewMatrix", Quaternion.conjugate(camera.getRotation()).toRotationMatrix());
+		// Vector3f origin = camera.getRotation().getForward();
 		//
-		//		shader.setUniform("color", new Vector3f(1.0f, 0.0f, 0.0f));
-		//		GL11.glBegin(GL11.GL_LINES);
-		//		GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ());
-		//		GL11.glVertex3f(origin.getX() + 0.1f, origin.getY(), origin.getZ());
-		//		GL11.glEnd();
+		// shader.setUniform("color", new Vector3f(1.0f, 0.0f, 0.0f));
+		// GL11.glBegin(GL11.GL_LINES);
+		// GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ());
+		// GL11.glVertex3f(origin.getX() + 0.1f, origin.getY(), origin.getZ());
+		// GL11.glEnd();
 		//
-		//		shader.setUniform("color", new Vector3f(0.0f, 1.0f, 0.0f));
-		//		GL11.glBegin(GL11.GL_LINES);
-		//		GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ());
-		//		GL11.glVertex3f(origin.getX(), origin.getY() + 0.1f, origin.getZ());
-		//		GL11.glEnd();
+		// shader.setUniform("color", new Vector3f(0.0f, 1.0f, 0.0f));
+		// GL11.glBegin(GL11.GL_LINES);
+		// GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ());
+		// GL11.glVertex3f(origin.getX(), origin.getY() + 0.1f, origin.getZ());
+		// GL11.glEnd();
 		//
-		//		shader.setUniform("color", new Vector3f(0.0f, 0.0f, 1.0f));
-		//		GL11.glBegin(GL11.GL_LINES);
-		//		GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ());
-		//		GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ() + 0.1f);
-		//		GL11.glEnd();
+		// shader.setUniform("color", new Vector3f(0.0f, 0.0f, 1.0f));
+		// GL11.glBegin(GL11.GL_LINES);
+		// GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ());
+		// GL11.glVertex3f(origin.getX(), origin.getY(), origin.getZ() + 0.1f);
+		// GL11.glEnd();
 	}
 
 	private void renderBlock() {
@@ -188,16 +211,19 @@ public class GameManager implements IGameManager {
 
 		GL20.glEnableVertexAttribArray(0);
 		GL20.glEnableVertexAttribArray(1);
+		GL20.glEnableVertexAttribArray(2);
 
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-		GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 5 * Float.BYTES, 0 * Float.BYTES); // Vertex Position : Vector3f[x, y, z];
-		GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES); // Vertex Texcoord : Vector2f[x, y];
+		GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 8 * Float.BYTES, 0 * Float.BYTES); // Vertex Position : Vector3f[x, y, z];
+		GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES); // Vertex Texcoord : Vector2f[x, y];
+		GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, 8 * Float.BYTES, 5 * Float.BYTES); // Vertex Normal : Vector3f[x, y, z];
 
 		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ibo);
 		GL11.glDrawElements(GL11.GL_TRIANGLES, Block.CUBE_INDICES.length, GL11.GL_UNSIGNED_INT, 0);
 
 		GL20.glDisableVertexAttribArray(0);
 		GL20.glDisableVertexAttribArray(1);
+		GL20.glDisableVertexAttribArray(2);
 	}
 
 }
