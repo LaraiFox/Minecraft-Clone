@@ -38,8 +38,8 @@ public class Stack {
 		return chunks[y / Chunk.CHUNK_SIZE].getBlock(x, (int) (y % Chunk.CHUNK_SIZE), z);
 	}
 
-	public void setBlock(int id, int x, int y, int z) {
-		chunks[y / Chunk.CHUNK_SIZE].setBlock(id, x, (int) (y % Chunk.CHUNK_SIZE), z);
+	public void setBlock(World world, short id, int x, int y, int z) {
+		chunks[y / Chunk.CHUNK_SIZE].setBlock(world, id, x, (int) (y % Chunk.CHUNK_SIZE), z);
 	}
 
 	public Chunk getChunk(int y) {

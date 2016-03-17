@@ -4,19 +4,23 @@ import java.util.Random;
 
 public class Crawler {
 	private int x, y, z;
-	private int blockID;
+	private short blockID;
 	private int lifespan;
 	private int stepsTaken;
 	private boolean alive;
 
 	public Crawler(World world, Random random) {
+		this(world, random, (short) random.nextInt(5), Stack.STACK_SIZE * Chunk.CHUNK_SIZE);
+	}
+
+	public Crawler(World world, Random random, short blockID, int maxHeight) {
 		this.x = random.nextInt(world.getSize() * Chunk.CHUNK_SIZE);
-		this.y = random.nextInt(Stack.STACK_SIZE * Chunk.CHUNK_SIZE);
+		this.y = random.nextInt(maxHeight);
 		this.z = random.nextInt(world.getSize() * Chunk.CHUNK_SIZE);
 
-		this.blockID = random.nextInt(2);
+		this.blockID = blockID;
 
-		this.lifespan = random.nextInt(1024 - 128) + 128;
+		this.lifespan = random.nextInt(2048 - 128) + 128;
 
 		this.alive = true;
 

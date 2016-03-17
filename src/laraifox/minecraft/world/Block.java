@@ -36,34 +36,34 @@ public class Block {
 	public static final float[] CUBE_VERTICES = new float[] {
 			// LEFT SIDE VERTICES { 0, 1, 2, 0, 2, 2 }
 			0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,	// (0)  
-			0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,	// (1)  
-			0.0f, 1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,	// (2)  
-			0.0f, 1.0f, 1.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,	// (3)  
+			0.0f, 0.0f, 0.0f, 0.0625f, 0.0f, -1.0f, 0.0f, 0.0f,	// (1)  
+			0.0f, 1.0f, 0.0f, 0.0625f, 0.0625f, -1.0f, 0.0f, 0.0f,	// (2)  
+			0.0f, 1.0f, 1.0f, 0.0f, 0.0625f, -1.0f, 0.0f, 0.0f,	// (3)  
 			// RIGHT SIDE VERTICES
 			1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,		// (4)  
-			1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,		// (5)  
-			1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,		// (6)  
-			1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,		// (7)  
+			1.0f, 0.0f, 1.0f, 0.0625f, 0.0f, 1.0f, 0.0f, 0.0f,		// (5)  
+			1.0f, 1.0f, 1.0f, 0.0625f, 0.0625f, 1.0f, 0.0f, 0.0f,		// (6)  
+			1.0f, 1.0f, 0.0f, 0.0f, 0.0625f, 1.0f, 0.0f, 0.0f,		// (7)  
 			// BOTTOM SIDE VERTICES
 			0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f,	// (8)  
-			1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,	// (9)  
-			1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f,	// (10) 
-			0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f,	// (11) 
+			1.0f, 0.0f, 1.0f, 0.0625f, 0.0f, 0.0f, -1.0f, 0.0f,	// (9)  
+			1.0f, 0.0f, 0.0f, 0.0625f, 0.0625f, 0.0f, -1.0f, 0.0f,	// (10) 
+			0.0f, 0.0f, 0.0f, 0.0f, 0.0625f, 0.0f, -1.0f, 0.0f,	// (11) 
 			// TOP SIDE VERTICES
 			0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,		// (12) 
-			1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,		// (13) 
-			1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,		// (14) 
-			0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,		// (15) 
+			1.0f, 1.0f, 0.0f, 0.0625f, 0.0f, 0.0f, 1.0f, 0.0f,		// (13) 
+			1.0f, 1.0f, 1.0f, 0.0625f, 0.0625f, 0.0f, 1.0f, 0.0f,		// (14) 
+			0.0f, 1.0f, 1.0f, 0.0f, 0.0625f, 0.0f, 1.0f, 0.0f,		// (15) 
 			// BACK SIDE VERTICES
 			0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,	// (16) 
-			1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f,	// (17) 
-			1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,	// (18) 
-			0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,	// (19) 
+			1.0f, 0.0f, 0.0f, 0.0625f, 0.0f, 0.0f, 0.0f, -1.0f,	// (17) 
+			1.0f, 1.0f, 0.0f, 0.0625f, 0.0625f, 0.0f, 0.0f, -1.0f,	// (18) 
+			0.0f, 1.0f, 0.0f, 0.0f, 0.0625f, 0.0f, 0.0f, -1.0f,	// (19) 
 			// FRONT SIDE VERTICES
 			1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,		// (20) 
-			0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,		// (21) 
-			0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,		// (22) 
-			1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f		// (23) 
+			0.0f, 0.0f, 1.0f, 0.0625f, 0.0f, 0.0f, 0.0f, 1.0f,		// (21) 
+			0.0f, 1.0f, 1.0f, 0.0625f, 0.0625f, 0.0f, 0.0f, 1.0f,		// (22) 
+			1.0f, 1.0f, 1.0f, 0.0f, 0.0625f, 0.0f, 0.0f, 1.0f		// (23) 
 	};
 
 	public static final int CUBE_INDICES_PER_FACE = 6;
@@ -102,9 +102,18 @@ public class Block {
 	public static final int CUBE_VERTICES_PER_FACE = 4;
 
 	public int id;
-	public int metadata;
+	public byte metadata;
 
 	private boolean opaque;
+	
+	static {
+		BlockRegistry.registerBlock(0, new Block(0));
+		BlockRegistry.registerBlock(1, new Block(1));
+		BlockRegistry.registerBlock(2, new Block(2));
+		BlockRegistry.registerBlock(3, new Block(3));
+		BlockRegistry.registerBlock(4, new Block(4));
+		BlockRegistry.registerBlock(5, new Block(5));
+	}
 
 	public Block(int id) {
 		this.id = id;

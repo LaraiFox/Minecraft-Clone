@@ -29,7 +29,7 @@ public class MinecraftCloneBoot {
 
 		GameManager gameManager = new GameManager();
 
-		OpenGLDisplay display = new OpenGLDisplay(TITLE, 1280, 720, gameManager);
+		OpenGLDisplay display = new OpenGLDisplay(TITLE, 1600, 900, false, gameManager);
 		display.start();
 	}
 }

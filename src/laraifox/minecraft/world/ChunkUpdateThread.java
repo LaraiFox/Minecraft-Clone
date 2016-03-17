@@ -32,7 +32,15 @@ public class ChunkUpdateThread extends Thread {
 	}
 
 	public void run() {
-		//		System.out.println("Thread #" + test++ + " Running...");
+		// TODO: Change the rendering system to only send vertex data of block faces that are visible rather than all faces to the GPU. 
+		//     Currently the rendering system demands far too much video memory from the GPU and on gigantic sized worlds begins eating though main system RAM.
+		//     By sending only the vertex data for block faces visible video memory usage can be reduced significantly
+		//
+		//               128 bytes           of vertex data per block face
+		//       301,989,888 bytes (0.28 GB) of vertex data theoretically with the new method
+		//     1,805,457,408 bytes (1.68 GB) of vertex data using the current method
+		//
+		//     Approximately an 83% reduction in video memory usage can be achieved on the base worlds if this can be implemented.
 
 		List<Float> vertexData = new ArrayList<Float>();
 		List<List<Integer>> indexDataLists = new ArrayList<List<Integer>>();
@@ -69,14 +77,16 @@ public class ChunkUpdateThread extends Thread {
 					if (addVertices) {
 						currentCubeIndex++;
 
+						int blockID = chunk.getBlock(k, j, i).getID();
+						
 						for (int l = 0; l < Block.CUBE_VERTEX_COUNT; l++) {
 							// VERTEX POSITION
 							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 0] + k);
 							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 1] + j);
 							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 2] + i);
 							// VERTEX TEXTURE UV
-							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 3]);
-							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 4]);
+							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 3] + (blockID % 16) * 0.0625f);
+							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 4] + (blockID / 16) * 0.0625f);
 							// VERTEX NORMAL
 							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 5]);
 							vertexData.add(Block.CUBE_VERTICES[l * Block.CUBE_FLOATS_PER_VERTEX + 6]);

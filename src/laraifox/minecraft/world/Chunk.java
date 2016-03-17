@@ -13,8 +13,8 @@ public class Chunk {
 
 	private static final Random RANDOM = new Random();
 
-	private final Block[][][] blocks;
-	private final int x, y, z;
+	private final short[][][] blocks;
+	private final int chunkX, chunkY, chunkZ;
 
 	private int vbo;
 	private int[] ibos;
@@ -30,21 +30,39 @@ public class Chunk {
 	private boolean processing;
 
 	public Chunk(int x, int y, int z) {
-		this.blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+		this.blocks = new short[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
-		final int BLOCK_ID = y < GENERATION_LIMIT ? 1 : 0;// RANDOM.nextInt(64) == 0 ? 0 : 1
+		//		final int BLOCK_ID = y < GENERATION_LIMIT ? y == 0 ? 6 : y == 63 ? 3 : 1 : 0;// RANDOM.nextInt(64) == 0 ? 0 : 1
 
 		for (int i = 0; i < CHUNK_SIZE; i++) {
 			for (int j = 0; j < CHUNK_SIZE; j++) {
 				for (int k = 0; k < CHUNK_SIZE; k++) {
-					blocks[i][j][k] = new Block(BLOCK_ID);
+					short blockID = 0;
+
+					int yLevel = y * Chunk.CHUNK_SIZE + j;
+
+					if (yLevel < GENERATION_LIMIT * Chunk.CHUNK_SIZE) {
+						if (yLevel == 0) {
+							blockID = 5;
+						} else if (yLevel == GENERATION_LIMIT * Chunk.CHUNK_SIZE - 1) {
+							blockID = 3;
+						} else if (yLevel < 55) {
+							blockID = 1;
+						} else if (yLevel < 59) {
+							blockID = 4;
+						} else {
+							blockID = 2;
+						}
+					}
+
+					blocks[i][j][k] = blockID;
 				}
 			}
 		}
 
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.chunkX = x;
+		this.chunkY = y;
+		this.chunkZ = z;
 
 		this.vbo = GL15.glGenBuffers();
 		this.ibos = new int[Block.CUBE_FACE_COUNT];
@@ -83,13 +101,13 @@ public class Chunk {
 			processing = true;
 
 			ChunkUpdateQueue.enqueueChunkUpdate(this);
-			for (int i = 0; i < Block.CUBE_FACE_COUNT; i++) {
-				Chunk chunk = world.getChunk(x + Block.CUBE_FACE_NORMALS[i * 3 + 0], y + Block.CUBE_FACE_NORMALS[i * 3 + 1], z + Block.CUBE_FACE_NORMALS[i * 3 + 2]);
-				if (chunk != null) {
-					chunk.processing = true;
-					ChunkUpdateQueue.enqueueChunkUpdate(chunk);
-				}
-			}
+			//			for (int i = 0; i < Block.CUBE_FACE_COUNT; i++) {
+			//				Chunk chunk = world.getChunk(chunkX + Block.CUBE_FACE_NORMALS[i * 3 + 0], chunkY + Block.CUBE_FACE_NORMALS[i * 3 + 1], chunkZ + Block.CUBE_FACE_NORMALS[i * 3 + 2]);
+			//				if (chunk != null) {
+			//					chunk.processing = true;
+			//					ChunkUpdateQueue.enqueueChunkUpdate(chunk);
+			//				}
+			//			}
 		} else if (this.isProcessing() && this.isFinished()) {
 			initialized = true;
 			processing = false;
@@ -122,7 +140,7 @@ public class Chunk {
 			GL20.glEnableVertexAttribArray(2);
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
 			GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, Block.CUBE_FLOATS_PER_VERTEX * Float.BYTES, 0 * Float.BYTES); // Vertex Position :
-																																	// Vector3f[x, y, z];
+																																// Vector3f[x, y, z];
 			GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, Block.CUBE_FLOATS_PER_VERTEX * Float.BYTES, 3 * Float.BYTES);
 			GL20.glVertexAttribPointer(2, 3, GL11.GL_FLOAT, false, Block.CUBE_FLOATS_PER_VERTEX * Float.BYTES, 5 * Float.BYTES);
 
@@ -158,28 +176,44 @@ public class Chunk {
 	}
 
 	public Block getBlock(int x, int y, int z) {
-		return blocks[x][y][z];
+		return BlockRegistry.getBlock(blocks[x][y][z]);
 	}
 
-	public void setBlock(int id, int x, int y, int z) {
-		this.blocks[x][y][z] = new Block(id);
+	public void setBlock(World world, short id, int x, int y, int z) {
+		this.blocks[x][y][z] = id;
 		this.dirty = true;
+
+		for (int i = 0; i < Block.CUBE_FACE_COUNT; i++) {
+			int adjacentChunkX = (this.chunkX * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 0] + x) / CHUNK_SIZE;
+			int adjacentChunkY = (this.chunkY * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 1] + y) / CHUNK_SIZE;
+			int adjacentChunkZ = (this.chunkZ * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 2] + z) / CHUNK_SIZE;
+
+			//			if (adjacentChunkX < 0 || adjacentChunkX >= world.getSize() || adjacentChunkY < 0 || adjacentChunkY >= Stack.STACK_SIZE || adjacentChunkZ < 0 || adjacentChunkZ > world.getSize())
+			//				continue;
+
+			if (adjacentChunkX != this.chunkX || adjacentChunkY != this.chunkY || adjacentChunkZ != this.chunkZ) {
+				Chunk chunk = world.getChunk(adjacentChunkX, adjacentChunkY, adjacentChunkZ);
+				if (chunk != null) {
+					chunk.dirty = true;
+				}
+			}
+		}
 	}
 
-	public Block[][][] getBlocks() {
+	public short[][][] getBlocks() {
 		return blocks;
 	}
 
 	public int getX() {
-		return x;
+		return chunkX;
 	}
 
 	public int getY() {
-		return y;
+		return chunkY;
 	}
 
 	public int getZ() {
-		return z;
+		return chunkZ;
 	}
 
 	public void setUpdateThread(ChunkUpdateThread updateThread) {

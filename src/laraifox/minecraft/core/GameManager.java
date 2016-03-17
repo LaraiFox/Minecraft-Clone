@@ -10,6 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+
 import laraifox.minecraft.enums.EWorldSize;
 import laraifox.minecraft.interfaces.IGameManager;
 import laraifox.minecraft.math.Matrix4f;
@@ -21,13 +28,6 @@ import laraifox.minecraft.world.Crawler;
 import laraifox.minecraft.world.Stack;
 import laraifox.minecraft.world.World;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-
 public class GameManager implements IGameManager {
 	private static final Random RANDOM = new Random();
 
@@ -37,6 +37,7 @@ public class GameManager implements IGameManager {
 	private Camera camera;
 	private Shader shader;
 	private Texture2D texture;
+	private Vector3f lightDirection;
 
 	private List<Crawler> crawlers;
 
@@ -52,8 +53,10 @@ public class GameManager implements IGameManager {
 
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		//		GL11.glCullFace(GL11.GL_BACK);
 
-		this.world = new World(EWorldSize.HUGE);
+		this.world = new World(EWorldSize.LARGE);
 		this.camera = new Camera(Matrix4f.Projection(70, display.getWidth(), display.getHeight(), 0.01f, 512.0f));
 		camera.translate(camera.getForward(), -5.0f);
 		try {
@@ -63,10 +66,12 @@ public class GameManager implements IGameManager {
 		}
 
 		try {
-			this.texture = Texture2D.getTextureFrom("res/textures/cube_texture.png");
+			this.texture = Texture2D.getTextureFrom("res/textures/blocks.png");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		this.lightDirection = new Vector3f(1.0f, -1.5f, 1.2f).normalize();
 
 		this.vbo = GL15.glGenBuffers();
 		this.ibo = GL15.glGenBuffers();
@@ -87,6 +92,9 @@ public class GameManager implements IGameManager {
 		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL15.GL_STATIC_DRAW);
 
 		this.crawlers = new ArrayList<Crawler>();
+//		for (int i = 0; i < world.getSize() * 4; i++) {
+//			crawlers.add(new Crawler(world, RANDOM, (short) 0, 64));
+//		}
 	}
 
 	@Override
@@ -96,11 +104,12 @@ public class GameManager implements IGameManager {
 
 	@Override
 	public void tick() {
-		Display.setTitle(display.getTitle() + " FPS: " + display.getCurrentFPS());
+		//		Display.setTitle(display.getTitle() + " FPS: " + display.getCurrentFPS());
 	}
 
 	@Override
 	public void update(float delta) {
+
 		if (Mouse.isGrabbed()) {
 			camera.rotate(Vector3f.Up(), Mouse.getDX() * 0.28f);
 			camera.rotate(camera.getRight(), -Mouse.getDY() * 0.28f);
@@ -140,7 +149,7 @@ public class GameManager implements IGameManager {
 		// System.out.println(camera.getPosition().toString());
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_Q)) {
-			int id = RANDOM.nextInt(2);
+			short id = (short) RANDOM.nextInt(2);
 			int x = RANDOM.nextInt(world.getSize() * Chunk.CHUNK_SIZE);
 			int y = RANDOM.nextInt((Stack.STACK_SIZE - 4) * Chunk.CHUNK_SIZE) + 4 * Chunk.CHUNK_SIZE;
 			int z = RANDOM.nextInt(world.getSize() * Chunk.CHUNK_SIZE);
@@ -163,7 +172,12 @@ public class GameManager implements IGameManager {
 
 		ChunkUpdateQueue.update(world);
 
+		Display.setTitle(display.getTitle() + " FPS: " + display.getCurrentFPS() + " | Updates: " + ChunkUpdateQueue.getChunkUpdatesQueued() + " (" + ChunkUpdateQueue.getChunkUpdatesProcessing()
+			+ ")");
+
 		world.update();
+
+		lightDirection.rotate(Vector3f.Up(), 0.1f);
 	}
 
 	@Override
@@ -174,6 +188,7 @@ public class GameManager implements IGameManager {
 		shader.setUniform("viewMatrix", camera.getViewMatrix());
 		shader.setUniform("projectionMatrix", camera.getProjectionMatrix());
 		shader.setUniform("color", new Vector3f(1.0f, 1.0f, 1.0f));
+		shader.setUniform("lightDirection", lightDirection);
 
 		// renderBlock();
 
