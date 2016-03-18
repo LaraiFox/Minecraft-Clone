@@ -1,17 +1,16 @@
 package laraifox.minecraft.world;
 
-import org.lwjgl.input.Keyboard;
-
-import laraifox.minecraft.core.Camera;
 import laraifox.minecraft.core.Shader;
 import laraifox.minecraft.enums.EWorldSize;
 import laraifox.minecraft.math.Vector2f;
 
-public class World {	
+import org.lwjgl.input.Keyboard;
+
+public class World {
 	private final Stack[] stacks;
 	private final EWorldSize worldSize;
 
-	public World(EWorldSize worldSize) {		
+	public World(EWorldSize worldSize) {
 		this.stacks = new Stack[worldSize.getSize() * worldSize.getSize()];
 		for (int i = 0; i < stacks.length; i++) {
 			stacks[i] = new Stack(i % worldSize.getSize(), i / worldSize.getSize());
@@ -61,11 +60,11 @@ public class World {
 		return stacks[(x / Chunk.CHUNK_SIZE) + (z / Chunk.CHUNK_SIZE) * worldSize.getSize()].getBlock((int) (x % Chunk.CHUNK_SIZE), y, (int) (z % Chunk.CHUNK_SIZE));
 	}
 
-	public void setBlock(short id, int x, int y, int z) {
+	public void setBlock(int id, int x, int y, int z) {
 		if (x < 0 || x >= worldSize.getSize() * Chunk.CHUNK_SIZE || y < 1 || y >= Stack.STACK_SIZE * Chunk.CHUNK_SIZE || z < 0 || z >= worldSize.getSize() * Chunk.CHUNK_SIZE) {
 			return;
 		}
-		
+
 		stacks[(x / Chunk.CHUNK_SIZE) + (z / Chunk.CHUNK_SIZE) * worldSize.getSize()].setBlock(this, id, (int) (x % Chunk.CHUNK_SIZE), y, (int) (z % Chunk.CHUNK_SIZE));
 	}
 }

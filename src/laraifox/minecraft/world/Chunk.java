@@ -13,7 +13,7 @@ public class Chunk {
 
 	private static final Random RANDOM = new Random();
 
-	private final short[][][] blocks;
+	private final int[][][] blocks;
 	private final int chunkX, chunkY, chunkZ;
 
 	private int vbo;
@@ -30,7 +30,7 @@ public class Chunk {
 	private boolean processing;
 
 	public Chunk(int x, int y, int z) {
-		this.blocks = new short[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+		this.blocks = new int[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
 		//		final int BLOCK_ID = y < GENERATION_LIMIT ? y == 0 ? 6 : y == 63 ? 3 : 1 : 0;// RANDOM.nextInt(64) == 0 ? 0 : 1
 
@@ -179,14 +179,14 @@ public class Chunk {
 		return BlockRegistry.getBlock(blocks[x][y][z]);
 	}
 
-	public void setBlock(World world, short id, int x, int y, int z) {
+	public void setBlock(World world, int id, int x, int y, int z) {
 		this.blocks[x][y][z] = id;
 		this.dirty = true;
 
 		for (int i = 0; i < Block.CUBE_FACE_COUNT; i++) {
-			int adjacentChunkX = (this.chunkX * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 0] + x) / CHUNK_SIZE;
-			int adjacentChunkY = (this.chunkY * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 1] + y) / CHUNK_SIZE;
-			int adjacentChunkZ = (this.chunkZ * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 2] + z) / CHUNK_SIZE;
+			int adjacentChunkX = (int) ((this.chunkX * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 0] + x) / CHUNK_SIZE);
+			int adjacentChunkY = (int) ((this.chunkY * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 1] + y) / CHUNK_SIZE);
+			int adjacentChunkZ = (int) ((this.chunkZ * CHUNK_SIZE + Block.CUBE_FACE_NORMALS[i * 3 + 2] + z) / CHUNK_SIZE);
 
 			//			if (adjacentChunkX < 0 || adjacentChunkX >= world.getSize() || adjacentChunkY < 0 || adjacentChunkY >= Stack.STACK_SIZE || adjacentChunkZ < 0 || adjacentChunkZ > world.getSize())
 			//				continue;
@@ -200,7 +200,7 @@ public class Chunk {
 		}
 	}
 
-	public short[][][] getBlocks() {
+	public int[][][] getBlocks() {
 		return blocks;
 	}
 
