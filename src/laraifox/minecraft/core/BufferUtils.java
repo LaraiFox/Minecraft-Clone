@@ -73,7 +73,7 @@ public class BufferUtils {
 		FloatBuffer buffer = createFloatBuffer(16);
 		for (int j = 0; j < 4; j++) {
 			for (int i = 0; i < 4; i++) {
-				buffer.put(matrix.getDataAt(i, j));
+				buffer.put(matrix.getData(i, j));
 			}
 		}
 

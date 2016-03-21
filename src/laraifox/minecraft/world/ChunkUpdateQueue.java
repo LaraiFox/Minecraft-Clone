@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ChunkUpdateQueue {
-	private static final int UPDATE_THREAD_COUNT = 16;
+	private static final int UPDATE_THREAD_COUNT = 64;
 
 	private static Map<Chunk, Integer> processingList = new HashMap<Chunk, Integer>();
 
@@ -29,7 +29,7 @@ public class ChunkUpdateQueue {
 
 	}
 
-	public static void enqueueChunkUpdate(Chunk chunk) {
+	public static void enqueueChunk(Chunk chunk) {
 		if (!updateQueue.contains(chunk)) {
 			updateQueue.add(chunk);
 		}

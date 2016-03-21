@@ -1,6 +1,8 @@
 package laraifox.minecraft.world;
 
+import laraifox.minecraft.core.Frustum;
 import laraifox.minecraft.core.Shader;
+import laraifox.minecraft.math.Vector3f;
 
 public class Stack {
 	public static final int STACK_SIZE = 16;
@@ -26,8 +28,22 @@ public class Stack {
 		}
 	}
 
-	public void render(Shader shader) {
+	public void performCulling(Frustum frustum) {
+		for (Chunk chunk : chunks) {
+			if (frustum.isAABBIntersecting(chunk.getAABB())) {
+				ChunkRenderQueue.enqueueChunk(chunk);
+			}
+		}
+	}
+
+	public void render(Shader shader, Frustum frustum) {
 		for (int i = 0; i < STACK_SIZE; i++) {
+			if (frustum.isAABBIntersecting(chunks[i].getAABB())) {
+				shader.setUniform("color", new Vector3f(1.0f, 1.0f, 1.0f));
+			} else {
+				shader.setUniform("color", new Vector3f(1.0f, 0.0f, 0.0f));
+			}
+
 			shader.setUniform("chunkHeight", (float) (i * Chunk.CHUNK_SIZE));
 
 			chunks[i].render();

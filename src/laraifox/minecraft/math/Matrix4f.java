@@ -24,8 +24,7 @@ public class Matrix4f {
 		Matrix4f result = new Matrix4f();
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				result.setDataAt(i, j,
-						data[i][0] * matrix.getDataAt(0, j) + data[i][1] * matrix.getDataAt(1, j) + data[i][2] * matrix.getDataAt(2, j) + data[i][3] * matrix.getDataAt(3, j));
+				result.setDataAt(i, j, data[i][0] * matrix.getData(0, j) + data[i][1] * matrix.getData(1, j) + data[i][2] * matrix.getData(2, j) + data[i][3] * matrix.getData(3, j));
 			}
 		}
 
@@ -61,8 +60,12 @@ public class Matrix4f {
 		return result;
 	}
 
-	public float getDataAt(int x, int y) {
+	public float getData(int x, int y) {
 		return data[x][y];
+	}
+
+	public float getData(int i) {
+		return data[i % 4][i / 4];
 	}
 
 	public void setData(float[][] data) {
@@ -335,53 +338,53 @@ public class Matrix4f {
 	public static Matrix4f Projection(float fov, float width, float height, float zNear, float zFar) {
 		Matrix4f result = new Matrix4f();
 
-		 float aspect = width / height;
-		 float tanHalfFOV = (float) Math.tan(Math.toRadians(fov / 2.0f));
-		 float zRange = zNear - zFar;
-		
-		 result.data[0][0] = 1.0f / (tanHalfFOV * aspect);
-		 result.data[0][1] = 0;
-		 result.data[0][2] = 0;
-		 result.data[0][3] = 0;
-		
-		 result.data[1][0] = 0;
-		 result.data[1][1] = 1.0f / tanHalfFOV;
-		 result.data[1][2] = 0;
-		 result.data[1][3] = 0;
-		
-		 result.data[2][0] = 0;
-		 result.data[2][1] = 0;
-		 result.data[2][2] = (-zNear - zFar) / zRange;
-		 result.data[2][3] = (2.0f * zFar * zNear) / zRange;
-		
-		 result.data[3][0] = 0;
-		 result.data[3][1] = 0;
-		 result.data[3][2] = 1;
-		 result.data[3][3] = 0;
+		float aspect = width / height;
+		float tanHalfFOV = (float) Math.tan(Math.toRadians(fov / 2.0f));
+		float zRange = zNear - zFar;
 
-//		 float aspect = width / height;
-//		 float tanHalfFOV = (float) Math.tan(Math.toRadians(fov / 2.0f));
-//		 float zRange = zNear - zFar;
-//		
-//		 result.data[0][0] = 1.0f / (tanHalfFOV * aspect);
-//		 result.data[0][1] = 0;
-//		 result.data[0][2] = 0;
-//		 result.data[0][3] = 0;
-//		
-//		 result.data[1][0] = 0;
-//		 result.data[1][1] = 1.0f / tanHalfFOV;
-//		 result.data[1][2] = 0;
-//		 result.data[1][3] = 0;
-//		
-//		 result.data[2][0] = 0;
-//		 result.data[2][1] = 0;
-//		 result.data[2][2] = (-zNear - zFar) / zRange;
-//		 result.data[2][3] = 1;
-//		
-//		 result.data[3][0] = 0;
-//		 result.data[3][1] = 0;
-//		 result.data[3][2] = (2.0f * zFar * zNear) / zRange;
-//		 result.data[3][3] = 0;
+		result.data[0][0] = 1.0f / (tanHalfFOV * aspect);
+		result.data[0][1] = 0;
+		result.data[0][2] = 0;
+		result.data[0][3] = 0;
+
+		result.data[1][0] = 0;
+		result.data[1][1] = 1.0f / tanHalfFOV;
+		result.data[1][2] = 0;
+		result.data[1][3] = 0;
+
+		result.data[2][0] = 0;
+		result.data[2][1] = 0;
+		result.data[2][2] = (-zNear - zFar) / zRange;
+		result.data[2][3] = (2.0f * zFar * zNear) / zRange;
+
+		result.data[3][0] = 0;
+		result.data[3][1] = 0;
+		result.data[3][2] = 1;
+		result.data[3][3] = 0;
+
+		//		 float aspect = width / height;
+		//		 float tanHalfFOV = (float) Math.tan(Math.toRadians(fov / 2.0f));
+		//		 float zRange = zNear - zFar;
+		//		
+		//		 result.data[0][0] = 1.0f / (tanHalfFOV * aspect);
+		//		 result.data[0][1] = 0;
+		//		 result.data[0][2] = 0;
+		//		 result.data[0][3] = 0;
+		//		
+		//		 result.data[1][0] = 0;
+		//		 result.data[1][1] = 1.0f / tanHalfFOV;
+		//		 result.data[1][2] = 0;
+		//		 result.data[1][3] = 0;
+		//		
+		//		 result.data[2][0] = 0;
+		//		 result.data[2][1] = 0;
+		//		 result.data[2][2] = (-zNear - zFar) / zRange;
+		//		 result.data[2][3] = 1;
+		//		
+		//		 result.data[3][0] = 0;
+		//		 result.data[3][1] = 0;
+		//		 result.data[3][2] = (2.0f * zFar * zNear) / zRange;
+		//		 result.data[3][3] = 0;
 
 		return result;
 	}

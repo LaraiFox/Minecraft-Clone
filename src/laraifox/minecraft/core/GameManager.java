@@ -6,9 +6,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+
 import laraifox.minecraft.enums.EWorldSize;
 import laraifox.minecraft.interfaces.IGameManager;
-import laraifox.minecraft.math.Matrix4f;
 import laraifox.minecraft.math.Vector3f;
 import laraifox.minecraft.world.Block;
 import laraifox.minecraft.world.Chunk;
@@ -17,18 +20,12 @@ import laraifox.minecraft.world.Crawler;
 import laraifox.minecraft.world.Stack;
 import laraifox.minecraft.world.World;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-
 public class GameManager implements IGameManager {
 	private static final Random RANDOM = new Random();
 
 	private OpenGLDisplay display;
 
 	private World world;
-	private Camera camera;
 	private Shader shader;
 	private Texture2D texture;
 	private Vector3f lightDirection;
@@ -41,6 +38,12 @@ public class GameManager implements IGameManager {
 
 	@Override
 	public void initialize(OpenGLDisplay display) {
+		try {
+			Debugger.initialize();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
 		Block.registerBlocks();
 
 		// 533 using chunks
@@ -50,11 +53,9 @@ public class GameManager implements IGameManager {
 
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glEnable(GL11.GL_CULL_FACE);
+		//		GL11.glEnable(GL11.GL_CULL_FACE);
 
-		this.world = new World(EWorldSize.GIGANTIC);
-		this.camera = new Camera(Matrix4f.Projection(70, display.getWidth(), display.getHeight(), 0.01f, 512.0f));
-		camera.translate(camera.getForward(), -5.0f);
+		this.world = new World(EWorldSize.LARGE);
 		try {
 			this.shader = new Shader("res/shaders/basic.vs", "res/shaders/basic.fs", true);
 		} catch (Exception e) {
@@ -88,42 +89,6 @@ public class GameManager implements IGameManager {
 	@Override
 	public void update(float delta) {
 
-		if (Mouse.isGrabbed()) {
-			camera.rotate(Vector3f.Up(), Mouse.getDX() * 0.28f);
-			camera.rotate(camera.getRight(), -Mouse.getDY() * 0.28f);
-		}
-
-		Mouse.setGrabbed(Mouse.isButtonDown(0));
-
-		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT) && !Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
-			camera.rotate(Vector3f.Up(), -1.0f);
-		} else if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT) && !Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
-			camera.rotate(Vector3f.Up(), 1.0f);
-		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_UP) && !Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
-			camera.rotate(camera.getRight(), -1.0f);
-		} else if (Keyboard.isKeyDown(Keyboard.KEY_DOWN) && !Keyboard.isKeyDown(Keyboard.KEY_UP)) {
-			camera.rotate(camera.getRight(), 1.0f);
-		}
-
-		final float speed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) ? 0.5f : 0.1f;
-
-		if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && !Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-			camera.translate(Vector3f.Up(), -speed);
-		} else if (Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-			camera.translate(Vector3f.Up(), speed);
-		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_A) && !Keyboard.isKeyDown(Keyboard.KEY_D)) {
-			camera.translate(camera.getRight(), -speed);
-		} else if (Keyboard.isKeyDown(Keyboard.KEY_D) && !Keyboard.isKeyDown(Keyboard.KEY_A)) {
-			camera.translate(camera.getRight(), speed);
-		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_S) && !Keyboard.isKeyDown(Keyboard.KEY_W)) {
-			camera.translate(camera.getForward().projectToPlane(Vector3f.Up()).normalize(), -speed);
-		} else if (Keyboard.isKeyDown(Keyboard.KEY_W) && !Keyboard.isKeyDown(Keyboard.KEY_S)) {
-			camera.translate(camera.getForward().projectToPlane(Vector3f.Up()).normalize(), speed);
-		}
-
 		if (Keyboard.isKeyDown(Keyboard.KEY_Z)) {
 			int id = RANDOM.nextInt(0);
 			int x = RANDOM.nextInt(world.getSize() * Chunk.CHUNK_SIZE);
@@ -155,8 +120,8 @@ public class GameManager implements IGameManager {
 
 		ChunkUpdateQueue.update(world);
 
-		Display.setTitle(display.getTitle() + " FPS: " + display.getCurrentFPS() + " | Updates: " + ChunkUpdateQueue.getChunkUpdatesQueued() + " ("
-			+ ChunkUpdateQueue.getChunkUpdatesProcessing() + ")");
+		Display.setTitle(display.getTitle() + " FPS: " + display.getCurrentFPS() + " | Updates: " + ChunkUpdateQueue.getChunkUpdatesQueued() + " (" + ChunkUpdateQueue.getChunkUpdatesProcessing()
+			+ ")");
 
 		world.update();
 
@@ -168,10 +133,10 @@ public class GameManager implements IGameManager {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		shader.bind();
-		shader.setUniform("viewMatrix", camera.getViewMatrix());
-		shader.setUniform("projectionMatrix", camera.getProjectionMatrix());
 		shader.setUniform("color", new Vector3f(1.0f, 1.0f, 1.0f));
 		shader.setUniform("lightDirection", lightDirection);
+
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
 
 		texture.bind();
 		world.render(shader);

@@ -6,6 +6,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
+import laraifox.minecraft.core.AABB;
+
 public class Chunk {
 	private static final int GENERATION_LIMIT = 4;
 
@@ -13,6 +15,7 @@ public class Chunk {
 
 	private static final Random RANDOM = new Random();
 
+	private final AABB aabb;
 	private final int[][][] blocks;
 	private final int chunkX, chunkY, chunkZ;
 
@@ -29,7 +32,8 @@ public class Chunk {
 	private boolean dirty;
 	private boolean processing;
 
-	public Chunk(int x, int y, int z) {
+	public Chunk(int chunkX, int chunkY, int chunkZ) {
+		this.aabb = new AABB(chunkX * CHUNK_SIZE, chunkY * CHUNK_SIZE, chunkZ * CHUNK_SIZE, (chunkX + 1) * CHUNK_SIZE, (chunkY + 1) * CHUNK_SIZE, (chunkZ + 1) * CHUNK_SIZE);
 		this.blocks = new int[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
 		//		final int BLOCK_ID = y < GENERATION_LIMIT ? y == 0 ? 6 : y == 63 ? 3 : 1 : 0;// RANDOM.nextInt(64) == 0 ? 0 : 1
@@ -39,7 +43,7 @@ public class Chunk {
 				for (int k = 0; k < CHUNK_SIZE; k++) {
 					short blockID = 0;
 
-					int yLevel = y * Chunk.CHUNK_SIZE + j;
+					int yLevel = chunkY * Chunk.CHUNK_SIZE + j;
 
 					if (yLevel < GENERATION_LIMIT * Chunk.CHUNK_SIZE) {
 						if (yLevel == 0) {
@@ -60,9 +64,9 @@ public class Chunk {
 			}
 		}
 
-		this.chunkX = x;
-		this.chunkY = y;
-		this.chunkZ = z;
+		this.chunkX = chunkX;
+		this.chunkY = chunkY;
+		this.chunkZ = chunkZ;
 
 		this.vbo = GL15.glGenBuffers();
 		this.ibos = new int[Block.CUBE_FACE_COUNT];
@@ -75,7 +79,7 @@ public class Chunk {
 		this.dirty = false;
 		this.processing = true;
 
-		ChunkUpdateQueue.enqueueChunkUpdate(this);
+		ChunkUpdateQueue.enqueueChunk(this);
 	}
 
 	public void invalidate() {
@@ -100,7 +104,7 @@ public class Chunk {
 			dirty = false;
 			processing = true;
 
-			ChunkUpdateQueue.enqueueChunkUpdate(this);
+			ChunkUpdateQueue.enqueueChunk(this);
 			//			for (int i = 0; i < Block.CUBE_FACE_COUNT; i++) {
 			//				Chunk chunk = world.getChunk(chunkX + Block.CUBE_FACE_NORMALS[i * 3 + 0], chunkY + Block.CUBE_FACE_NORMALS[i * 3 + 1], chunkZ + Block.CUBE_FACE_NORMALS[i * 3 + 2]);
 			//				if (chunk != null) {
@@ -133,7 +137,6 @@ public class Chunk {
 	}
 
 	public void render() {
-
 		if (this.isInitialized()) {
 			GL20.glEnableVertexAttribArray(0);
 			GL20.glEnableVertexAttribArray(1);
@@ -198,6 +201,10 @@ public class Chunk {
 				}
 			}
 		}
+	}
+
+	public AABB getAABB() {
+		return aabb;
 	}
 
 	public int[][][] getBlocks() {

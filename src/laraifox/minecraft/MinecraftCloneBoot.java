@@ -4,6 +4,7 @@ import java.io.File;
 
 import laraifox.minecraft.core.GameManager;
 import laraifox.minecraft.core.OpenGLDisplay;
+import laraifox.minecraft.interfaces.IGameManager;
 
 public class MinecraftCloneBoot {
 	private static final String PROGRAM_NAME = new String("Minecraft Clone");
@@ -27,7 +28,7 @@ public class MinecraftCloneBoot {
 			System.exit(1);
 		}
 
-		GameManager gameManager = new GameManager();
+		IGameManager gameManager = new GameManager();
 
 		OpenGLDisplay display = new OpenGLDisplay(TITLE, 1600, 900, false, gameManager);
 		display.start();
